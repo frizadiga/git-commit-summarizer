@@ -95,7 +95,27 @@ fn checkHolyWords(io: std.Io, gpa: std.mem.Allocator, environ_map: *const std.pr
 
     if (!std.mem.eql(u8, enable, "1")) return;
 
-    const holy_words = &[_][]const u8{ "tai", "cok", "cuk", "coeg", "djancuk", "njing", "bgsd", "bgst" };
+    const holy_words_env = if (environ_map.get("HOLY_WORDS")) |val|
+        try gpa.dupe(u8, val)
+    else
+        return;
+    defer gpa.free(holy_words_env);
+
+    var holy_words_list: std.ArrayList([]const u8) = .empty;
+    defer holy_words_list.deinit(gpa);
+
+    var iter = std.mem.splitScalar(u8, holy_words_env, ',');
+    while (iter.next()) |word| {
+        const trimmed = std.mem.trim(u8, word, " ");
+        if (trimmed.len > 0) {
+            try holy_words_list.append(gpa, try gpa.dupe(u8, trimmed));
+        }
+    }
+    defer {
+        for (holy_words_list.items) |w| gpa.free(w);
+    }
+
+    const holy_words = holy_words_list.items;
 
     const file_list = try gitDiffNameOnly(io, gpa) orelse return;
     defer gpa.free(file_list);
