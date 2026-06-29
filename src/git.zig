@@ -20,7 +20,7 @@ fn outPrint(io: std.Io, comptime fmt: []const u8, args: anytype) !void {
 pub fn diff(io: std.Io, gpa: std.mem.Allocator) ![]u8 {
     // Try git diff HEAD first (compare against last commit)
     var child = try std.process.spawn(io, .{
-        .argv = &.{ "git", "--no-pager", "diff", "HEAD" },
+        .argv = &.{ "git", "--no-pager", "diff", "HEAD", "./" },
         .stdout = .pipe,
         .stderr = .pipe,
     });
@@ -62,7 +62,7 @@ fn diffFallback(io: std.Io, gpa: std.mem.Allocator) ![]u8 {
     
     // Try --cached first
     var child = try std.process.spawn(io, .{
-        .argv = &.{ "git", "--no-pager", "diff", "--cached" },
+        .argv = &.{ "git", "--no-pager", "diff", "--cached", "./" },
         .stdout = .pipe,
         .stderr = .pipe,
     });
@@ -89,7 +89,7 @@ fn diffFallback(io: std.Io, gpa: std.mem.Allocator) ![]u8 {
 
     // Fall back to git diff (unstaged)
     child = try std.process.spawn(io, .{
-        .argv = &.{ "git", "--no-pager", "diff" },
+        .argv = &.{ "git", "--no-pager", "diff", "./" },
         .stdout = .pipe,
         .stderr = .pipe,
     });

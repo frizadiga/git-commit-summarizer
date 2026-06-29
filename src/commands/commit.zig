@@ -146,7 +146,7 @@ fn checkHolyWords(io: std.Io, gpa: std.mem.Allocator, environ_map: *const std.pr
 
 fn gitDiffNameOnly(io: std.Io, gpa: std.mem.Allocator) !?[]u8 {
     var child = try std.process.spawn(io, .{
-        .argv = &.{ "git", "--no-pager", "diff", "HEAD", "--name-only" },
+        .argv = &.{ "git", "--no-pager", "diff", "HEAD", "--name-only", "./" },
         .stdout = .pipe,
         .stderr = .pipe,
     });
